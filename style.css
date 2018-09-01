@@ -7,13 +7,13 @@
         <meta name="keywords" content="Comp, Sci">
         <meta name="author" content="Shreya Gurunathan">
         <title>Comp Sci Website</title>
-        <link rel="stylesheet" href="styling.css">
+        <link rel="stylesheet" href="./css/style.css">
     </head>
     <body>
         <header>
             <div class="container">
                 <div id="branding">
-                    <h1>Dog Lovers' Website</h1>
+                    <h1>The life of a midget</h1>
                 </div>
                 <nav>
                 <ul>
@@ -27,9 +27,9 @@
              
              <section id="showcase">
                <div class="container">
-                 <h1>Subscribe to the dogs</h1>
+                 <h1>Subscribe to my channel</h1>
                  <form>
-                   <input type="email" placeholder="Enter your favorite dogand subscribe...">
+                   <input type="email" placeholder="Enter Email...">
                    <button type="submit" class="button_1">Subscribe</button>
                  </form>
                 </div>
