@@ -91,7 +91,8 @@ header a:hover{
 
 #showcase h1{
   margin-top:100px;
-  font-size:55px;
+  font-size:30px;
+  color: #1be5c7;
   margin-bottom:10px;
 }
 
@@ -119,6 +120,7 @@ header a:hover{
   padding:4px;
   height:25px;
   width:250px;
+
 }
 
 /* Boxes */
