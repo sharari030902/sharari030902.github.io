@@ -181,13 +181,17 @@ footer{
   header nav li,
   #newsletter h1,
   #newsletter form,
-  #boxes .box,
-  article#main-col,
-  aside#sidebar{
+  #boxes .box{
     float:none;
     text-align:center;
     width:100%;
   }
+  div {
+    width: 320px;
+    padding: 10px;
+    border: 5px solid gray;
+    margin: 0; 
+}
 
   header{
     padding-bottom:20px;
