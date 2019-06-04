@@ -1,0 +1,370 @@
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<title>My Flappy Mario Game</title>
+<script type="text/javascript" src="processing.js"></script>
+</head>
+
+<body>
+<script type="text/processing">
+
+//Flappy Butterfly 
+import processing.pdf.*;
+
+PFont font1; PFont font2; PFont bold;
+PImage bg; PImage bgR; PImage cat; PImage cat2; PImage costume;
+
+int x; int cx; int cy; int cVy; int moveSpeed;
+int numKnives = 7;
+int gameState; PImage knife; int[] kx = new int[numKnives]; int[] ky = new int[numKnives]; int count;
+int score; int highScore; 
+PImage bullet; int bx; int by;
+PImage fireBall; int fx; int fy;
+PImage back2; int fireCount; int bulletCount;
+boolean isShooting; boolean bull;
+PImage ghost; PImage ghostCostume; PImage ghost2; PImage ghostR; PImage ghost2R;
+int gx; int gy; int ghostCount; int ghostTimer; int ghostCount2;
+int chaseCount;
+
+
+void setup(){
+  isShooting = true;
+  bull = false;
+  gameState = 0;
+  font2 = createFont("Georgia", 16);
+  font1 = createFont("CHILLER", 35);
+  bold = createFont("GEORGIA", 24);
+  size(800,600);
+  bg = loadImage("./img/background.png"); //image set for background
+  bgR = loadImage("./img/background.png");
+  cat = loadImage("./img/butterfly.png");//the character that flies in the game
+  cat2 = loadImage("./img/butterfly2.png");
+  costume = cat;
+  knife = loadImage("./img/fire.png");//random obstacles floating
+  bullet = loadImage("./img/lizard.png");//comes in when far enough in game
+  fireBall = loadImage("./img/water.png");//shoots water to destroy obstacles
+  back2 = loadImage("./img/background.png");
+  ghost = loadImage("./img/ghost.png");//more obstacles
+  ghost2 = loadImage("./img/ghost.png");
+  ghostR = loadImage("./img/ghost.png");
+  ghost2R = loadImage("./img/ghost.png");
+  ghostCostume = ghost;
+  
+  cVy = 2;
+  cy = 100;
+  cx = 50;
+  gx = width + 500;
+  fx = width + 10000;
+  bx = width + 200;
+  by = (int)random(200,600);
+  for(int i =0; i < numKnives ; i++){
+    kx[i] = width + (int)random(50, 200) + 200*i;
+    ky[i] = height/2 + (int)random(-200,200);
+  }
+  
+}
+
+
+void draw(){
+  moveSpeed++;
+  count++;
+  move();
+  if(score > highScore){
+        highScore = score;
+  }
+  if(gameState==0){
+  //Background goes on top!  (first!)
+  image(bg, x, 0);
+  image(bgR, x+bg.width-6, 0);
+  image(bg, x+2*bg.width -12, 0);
+  if(score > 35){
+    bx++;
+    x++;
+    for(int i = 0; i < numKnives; i++){
+      kx[i]++;  
+    }
+  }
+  if(x < -(2*bg.width+12)){
+    x=0;
+  } 
+
+  //FIRE CODE!!
+  for(int i = 0; i<numKnives ; i++){
+    kx[i]-= 2;
+    if(kx[i] < -10){
+      score++;
+      kx[i] = width + (int)random(50, 200);
+      ky[i] = height/2 + (int)random(-200,200);
+    }
+    if(abs((int)((fx+10)-(kx[i]+5))) < 10 && abs((int)((fy+10) - (ky[i]+32))) < 46){
+      kx[i]+=2000;
+      fx = width +20000;
+      score++;
+    }
+    if(abs((int)((cx+35)-(kx[i]+7))) < 22 && abs((int)((cy+34) - (ky[i]+41))) < 74){
+      gameState=1;
+    }
+    image(knife, kx[i], ky[i]);
+    
+    //LIZARD Code
+    if(score >10){
+      bx -= 1;
+      if(score > 20){
+        chaseMario();
+      }
+      if(bx < -100){
+         bx = width + 2000;
+         by = (int)random(200,600);
+      }
+      if(abs((int)((cx+35)-(bx+75))) < 80 && abs((int)((cy+34) - (by+52))) < 86){
+        gameState=1;
+      }
+      image(bullet, bx, by);
+    }     
+  }
+      //GHOST Code
+    if(score >-1){
+      if(gx > cx && score > 15){
+        gx--;
+      }
+      else if(ghostCount%5==0){
+        if(gx > width){
+          gx -= 1;
+        }
+        if(gx > cx){
+          gx--;
+        }
+        if(gy < cy){
+          gy+=2;
+        }
+        if(gx < cx){
+          gx++;
+        }
+        if(gy > cy){
+          gy-=2;
+        }
+      }
+      if(gx < -100){
+         gx = width + 3000;
+         gy = (int)random(200,600);
+      }
+      if(abs((int)((cx+35)-(gx+67))) < 50 && abs((int)((cy+34) - (gy+67))) < 50){
+        gameState=1;
+      }
+      if(gx > cx){
+        ghostCostume = ghost;
+      }
+      else{
+        ghostCostume = ghostR;
+      }
+      if(ghostTimer > 1500){
+        if(ghostCount%3==0){
+          if(gx > cx){
+            ghostCostume = ghost2;
+          }
+          else{
+            ghostCostume = ghost2R;
+          }
+          ghostCount2++;
+        }
+        if (ghostCount2%3==0){
+          if(gx > cx){
+            ghostCostume = ghost;
+          }
+          else{
+            ghostCostume = ghostR;
+          }
+        }
+      }
+      if (ghostTimer > 1700){
+        gx +=1500;
+        ghostTimer = -500;
+        ghostCostume = ghost;
+      }
+      image(ghostCostume, gx, gy);
+      ghostCount++;
+      ghostTimer++;
+    }     
+  
+  
+  //butterfly CODE!!!
+  image(costume, cx,cy);
+  cy = cy + cVy;
+  if(count%2 ==0){
+    cVy ++;
+  }
+  x--;
+  checkCat();
+  
+  //FIREBALL CODE
+  image(fireBall, fx, fy);
+  fx += 10;
+  if(abs((int)((fx+10)-(bx+75))) < 80 && abs((int)((fy+10) - (by+52))) < 86){
+      bx+=2000;  
+      fx =20000;
+      score++;
+      if(bulletCount==0){
+        bull = true;
+      }
+      if(bulletCount>0){
+        bull = false; 
+      }
+      bulletCount++;
+      
+  }
+  if(fx > width + 20){
+    fx = 20000;
+  } 
+ //END GAMESTATE 0 
+ }
+
+  //butterfly Dies:
+  if(gameState==1){
+
+    //BEGIN BUTTON
+    textSize(34);   //SIZE OF TEXT
+    text("You died!!!", 100,146);
+    fill(245); 
+    rect(90,160, 240, 45, 10);  //BACKGROUND OF BUTTON
+    fill(0);
+    //END BUTTON
+    
+    //RESTART GAME
+    if(mouseX > 90 && mouseY > 160 && mouseX < 330 && mouseY < 205){
+      if (mousePressed){
+        cy = 100;
+        cVy = 2;
+        cx = 50;
+        score = 0;
+        gx = width + 500;
+        fx = width + 10000;
+        bx = width + 200;
+        by = (int)random(200,600);       
+        for(int i =0; i < numKnives ; i++){
+          kx[i] = width + (int)random(50, 200) + 200*i;
+          ky[i] = height/2 + (int)random(-200,200);
+        }
+        gameState=0;             
+      }
+ 
+      else{  //HOVER OVER BUT NOT CLICK
+        fill(255,0,0);
+        rect(90,160, 240, 45, 10);
+        fill(0);
+        text("Play Again?", 100,196);  //TEXT ON BUTTON
+      }
+    }
+    else{
+      text("Click Me!!", 100,196);  //TEXT ON BUTTON
+    }  
+  }
+  
+  //TEXT TO SCREEN
+  fill(0);
+  textSize(18);
+  text("Score: " + score, width -130, 30);
+  text("High Score: " + highScore, width - 130, 50);
+  if(score > 8 && score < 12){
+    fill(255,50,50);
+    textSize(50);
+    text("WARNING! LIZARDS!!! ", 160, 110);
+    fill(0);
+    textSize(16);
+  }
+  if(fireCount < 1 && score > 0){
+    if(score <5){
+      text("Did you know Mario can shoot WATER DROPS?", 120, 30);
+    }
+    else{
+       text("Use the RIGHT MOUSE to shoot", 120, 30);
+    }
+  }
+  if(!isShooting && fireCount >0 && score > 3){
+     text("Nice Job!  You Learned to Shoot", 120, 30);
+     if(fireCount > 3){
+        text("I wonder what things can be killed by WATER?", 140, 60);
+     }
+   }
+   if(bull &&score < 20){
+     text("WOW!  Water can destroy Lizards!", 140, 60);
+   }
+  
+  //START SCREEN
+  
+    textFont(font2);
+    text("MOVE:  LEFT/RIGHT MOUSE", 15, 145);
+    text("WATER:  SPACE OR RIGHT CLICK", 15, 170);
+    text("FLAP:  LEFT CLICK", 15, 195); 
+    
+    fill(0,0,0, 255);
+    textFont(bold);
+    text("BUTTERFLY CONTROLS", 25, 115);
+    noFill();
+    rect(10, 125, 248,75, 5);
+  }
+  
+
+//END DRAW
+
+
+void move(){
+  if (mouseX > cx){    
+    cx+=2;
+  }
+  else if(mouseX < cx){
+    cx-=2;
+  }
+}
+
+void keyPressed(){
+  if(key==32){
+    fire();
+  }
+}
+void mousePressed(){
+  if(mouseButton == LEFT){
+    cVy = -11;
+  }
+  else if(mouseButton == RIGHT){
+    fire();
+  }
+  costume = cat2;
+  
+}
+
+void mouseReleased(){
+  costume = cat; 
+}
+void fire(){
+  fx = cx + 20;
+  fy = cy + 45;
+  fireCount++;
+  if(fireCount > 4){
+    isShooting = true;
+  }
+  else{
+    isShooting = false;
+  }
+}
+void checkCat(){
+  if(cy > height || cy < -80){
+    gameState =1;
+  }
+}
+
+void chaseMario(){
+   if(by > cy && chaseCount%3==0){
+     by--;
+     bx--;
+   }
+   if(by < cy && chaseCount%3==0){
+     by++;
+     bx--;
+   }
+   chaseCount++;
+}
+
+</script>
+<canvas id="sketch" style="border: 1px solid black;"></canvas>
+</body>
+</html>
